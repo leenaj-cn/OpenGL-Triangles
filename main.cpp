@@ -9,6 +9,13 @@ using namespace std;
 #define WIDTH 800
 #define HEIGHT 600
 
+#define BUFFER_OFFSET(i) ((char*)NULL + （i))
+GLuint shaderProgramID;
+GLuint vao = 0;
+GLuint vbo;
+GLuint positionID, colorID;
+
+
 static char* readFile(const char* filename)
 {
     FILE* fp = fopen(filename,"r");
@@ -34,14 +41,14 @@ void ChangeViewport(int w, int h)
 	glViewport(0, 0, w, h);
 }
 
-void Display(void)
+void render(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
     //GLfloat vRed[] = {0.0f, 0.0f, 1.0f, 1.0f};
 	//glRectf(-0.9f, -0.9f, 0.5f, 0.5f);
 	//
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    glFlush();
+    //glFlush();
 	glutSwapBuffers();
 }
 
@@ -217,27 +224,55 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH|GLUT_STENCIL);
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(WIDTH, HEIGHT);
-	glutCreateWindow("Hello, Triangle!");
+	glutCreateWindow("shaders");
+    glutReshapeFunc(ChangeViewport);
+	glutDisplayFunc(&render);
 	glewInit();
 
-   Init();
+    //Init();
 
-//    char* vertexShadeSourceCode = readFile("Triangles.vs");
-//    char* fragmentShaderSourceCode = readFile("Triangles.fs");
-//    GLuint vertexShaderID = compileShader(vertexShadeSourceCode, GL_VERTEX_SHADER);
-//    GLuint fragmentShaderID = compileShader(fragmentShaderSourceCode, GL_FRAGMENT_SHADER);
-//    GLuint ShaderProgramID = LinkedProgram(vertexShaderID,fragmentShaderID);
-//    glUseProgram(ShaderProgramID);
-   
-//    cout << "vertexShaderID = "<< vertexShaderID << endl;
-//    cout << "fragmentShaderID = "<< fragmentShaderID << endl;
-//    cout << "ShaderProgramID = "<< ShaderProgramID << endl;
-   
-//     glDeleteProgram(ShaderProgramID);
+    GLfloat vertices[] = {-0.5f, -0.5f, 0.0f, 
+                        0.5f, -0.5f, 0.0f, 
+                        0.0f, 0.5f, 0.0f};
+    GLfloat colors[] = {1.0f, 0.0f, 0.0f, 1.0f,
+                        0.0f, 1.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f, 1.0f,};
 
-	glutReshapeFunc(ChangeViewport);
-	glutDisplayFunc(&Display);
+    //shaders
+   char* vertexShadeSourceCode = readFile("triangles.vs");
+   char* fragmentShaderSourceCode = readFile("triangles.fs");
+   GLuint vertexShaderID = compileShader(vertexShadeSourceCode, GL_VERTEX_SHADER);
+   GLuint fragmentShaderID = compileShader(fragmentShaderSourceCode, GL_FRAGMENT_SHADER);
+   GLuint ShaderProgramID = LinkedProgram(vertexShaderID,fragmentShaderID);
+
+   cout << "vertexShaderID = "<< vertexShaderID << endl;
+   cout << "fragmentShaderID = "<< fragmentShaderID << endl;
+   cout << "ShaderProgramID = "<< ShaderProgramID << endl;
+   cout << "vertexShadeSourceCode[0]=" << vertexShadeSourceCode[0]<< endl;
+   cout << "fragmentShaderSourceCode[0]=" << fragmentShaderSourceCode[0]<< endl;
+
+    //vertex buffers 
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+    glBufferData(GL_ARRAY_BUFFER, 7*3*sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, 3*3*sizeof(GLfloat), vertices);
+    glBufferSubData(GL_ARRAY_BUFFER, 3*3*sizeof(GLfloat), 3*4*sizeof(GLfloat), colors);
+
+    positionID = glGetAttribLocation(ShaderProgramID, "i_vPosition");
+    colorID = glGetAttribLocation(ShaderProgramID, "i_Color");
+
+    glVertexAttribPointer(positionID, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(colorID, 4, GL_FLOAT, GL_FALSE, 0, ((char*)NULL + 3*3*sizeof(GLfloat) ) );
+    glUseProgram(ShaderProgramID);
+    glEnableVertexAttribArray(positionID);
+    glEnableVertexAttribArray(colorID);
+
 
 	glutMainLoop();
+
 	return 0;
 }

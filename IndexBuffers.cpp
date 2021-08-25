@@ -84,7 +84,6 @@ void render(void)
 	glutSwapBuffers();
 }
 
-
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -147,11 +146,6 @@ int main(int argc, char** argv)
 
     };
 #endif
-
-    //vertex buffers 
-    GLuint vao = 0;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
 
     GLuint vbo;
     glGenBuffers(1, &vbo);

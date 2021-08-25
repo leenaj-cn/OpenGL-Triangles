@@ -8,15 +8,16 @@ using namespace std;
 #define WIDTH 800
 #define HEIGHT 600
 
-#define USING_INDEX_BUFFER 0
+#define USING_INDEX_BUFFER 1
 
 #if USING_INDEX_BUFFER
     #define NUM_VERTICES 6
-    #define NUM_INDICES 9
+    #define NUM_INDICES 12
 #else
     #define NUM_VERTICES 9
 #endif
 
+#pragma region Shader Related Function
 string vertexShader = R"(
     #version 460
     in vec4 s_vPosition;
@@ -41,25 +42,7 @@ string fragmentShader = R"(
     }
 )";
 
-void ChangeViewport(int w, int h)
-{
-	glViewport(0, 0, w, h);
-}
 
-void render(void)
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-#if USING_INDEX_BUFFER   
-    glDrawElements(GL_TRIANGLES, NUM_INDICES, GL_UNSIGNED_INT, NULL); //do not use glDrawArrays() which is non-index buffer way
-#else
-    glDrawArrays(GL_TRIANGLES,0,NUM_VERTICES);
-#endif
-    
-
-	glutSwapBuffers();
-}
 
 GLuint compileShader(string shader, GLenum type)
 {
@@ -80,6 +63,26 @@ GLuint LinkedProgram(GLuint vertexShaderID, GLuint fragmentShaderID)
 
     return programID;
 }
+#pragma endregion Shader Function
+
+void ChangeViewport(int w, int h)
+{
+	glViewport(0, 0, w, h);
+}
+
+void render(void)
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+#if USING_INDEX_BUFFER   
+    glDrawElements(GL_TRIANGLES, NUM_INDICES, GL_UNSIGNED_INT, NULL); //do not use glDrawArrays() which is non-index buffer way
+#else
+    glDrawArrays(GL_TRIANGLES,0,NUM_VERTICES);
+#endif
+    
+	glutSwapBuffers();
+}
 
 
 int main(int argc, char** argv)
@@ -93,6 +96,15 @@ int main(int argc, char** argv)
 	glutDisplayFunc(&render);
 	glewInit();
 
+    //shaders
+    GLuint vertexShaderID = compileShader(vertexShader, GL_VERTEX_SHADER); //vertexShader
+    GLuint fragmentShaderID = compileShader(fragmentShader, GL_FRAGMENT_SHADER); //fragmentShader
+    GLuint ShaderProgramID = LinkedProgram(vertexShaderID,fragmentShaderID);
+
+    cout << "vertexShaderID = "<< vertexShaderID << endl;
+    cout << "fragmentShaderID = "<< fragmentShaderID << endl;
+    cout << "ShaderProgramID = "<< ShaderProgramID << endl;
+
 #if USING_INDEX_BUFFER
     GLfloat vertices[] = {0.0f, 0.5f, 0.0f, //0
                         -0.25f, 0.0f, 0.0f, //1
@@ -103,15 +115,15 @@ int main(int argc, char** argv)
     };
 
     GLfloat colors[] = { 1.0f, 0.0f, 0.0f, 1.0f, //0
-                        0.0f, 1.0f, 0.0f, 1.0f, //1
-                        0.0f, 0.0f, 1.0f, 1.0f, //2
+                        1.0f, 1.0f, 0.0f, 1.0f, //1
+                        1.0f, 1.0f, 0.0f, 1.0f, //2
                         0.0f, 0.0f, 1.0f, 1.0f, //3
-                        1.0f, 0.0f, 0.0f, 1.0f, //4
+                        1.0f, 1.0f, 0.0f, 1.0f, //4
                         0.0f, 1.0f, 0.0f, 1.0f //5
 
     };
 
-    GLfloat indices[] = {0, 1, 2, 1, 3, 4, 2, 4, 5};
+    GLuint indices[] = {0, 1, 2, 2, 4, 5, 1, 3, 4, 1,2,4};
 #else
     GLfloat vertices[] = {-0.5f, -0.5f, 0.0f, //3
                         0.0f, -0.5f, 0.0f, //4
@@ -136,16 +148,6 @@ int main(int argc, char** argv)
     };
 #endif
 
-    //shaders
-    GLuint vertexShaderID = compileShader(vertexShader, GL_VERTEX_SHADER); //vertexShader
-    GLuint fragmentShaderID = compileShader(fragmentShader, GL_FRAGMENT_SHADER); //fragmentShader
-
-    GLuint ShaderProgramID = LinkedProgram(vertexShaderID,fragmentShaderID);
-
-    cout << "vertexShaderID = "<< vertexShaderID << endl;
-    cout << "fragmentShaderID = "<< fragmentShaderID << endl;
-    cout << "ShaderProgramID = "<< ShaderProgramID << endl;
-    
     //vertex buffers 
     GLuint vao = 0;
     glGenVertexArrays(1, &vao);
@@ -157,7 +159,7 @@ int main(int argc, char** argv)
     glBufferData(GL_ARRAY_BUFFER, 7 * NUM_VERTICES * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * NUM_VERTICES * sizeof(GLfloat), vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, 3 * NUM_VERTICES * sizeof(GLfloat), 4*NUM_VERTICES*sizeof(GLfloat), colors);    
+    glBufferSubData(GL_ARRAY_BUFFER, 3 * NUM_VERTICES * sizeof(GLfloat), 4 * NUM_VERTICES * sizeof(GLfloat), colors);    
 
 #if USING_INDEX_BUFFER
     GLuint indexBufferID;
@@ -176,6 +178,7 @@ int main(int argc, char** argv)
     glVertexAttribPointer(colorID, 4, GL_FLOAT, GL_FALSE, 0, ((char*)NULL + sizeof(vertices)) );
     
     glUseProgram(ShaderProgramID);
+
     glEnableVertexAttribArray(positionID);
     glEnableVertexAttribArray(colorID);
 

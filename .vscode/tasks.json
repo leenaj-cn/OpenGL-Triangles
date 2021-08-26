@@ -6,7 +6,8 @@
             "command": "C:\\msys64\\mingw64\\bin\\g++.exe",
             "args": [
                 "-g",
-                "${fileDirname}/Matrix.cpp",
+                "${fileDirname}/phlegm_small.cpp",
+                "${fileDirname}/phlegm_small.h",
                 "${fileDirname}/MathHelper.h",
                 "${fileDirname}/MathHelper.cpp",
                 "-lfreeglut",

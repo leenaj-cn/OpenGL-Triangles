@@ -1,5 +1,5 @@
 #ifndef MATH_HELPER
-#define MATH_HELPER
+#define MATH_HELPER 
 
 #include <GL\freeglut.h>
 #include <math.h>

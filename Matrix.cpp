@@ -129,11 +129,14 @@ void render(void)
     theta += 0.01f;
     scaleAmount = sin(theta);
 
-    MathHelper::makeScale(scaleMatrix, 1.5f, 1.5f, 1.5f);
+    MathHelper::makeScale(scaleMatrix, 1.0f, 0.5f, 1.5f);
     MathHelper::makeRotateY(rotYMatrix, theta);
     MathHelper::makeTranslate(transMatrix, 0.0f, -0.25f, -2.0f);
+    
+    //V
     MathHelper::makeTranslate(V, -0.5f, 0.5f, 1.3f);
 
+    //M
     //MathHelper::matrixMult4x4(M, transMatrix, rotYMatrix);
    //MathHelper::matrixMult4x4(M, rotYMatrix, transMatrix);
     MathHelper::matrixMult4x4(tempMatrix1, rotYMatrix, scaleMatrix);

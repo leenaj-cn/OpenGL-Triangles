@@ -13,7 +13,7 @@ using namespace std;
 
 #if USING_INDEX_BUFFER
     #define NUM_VERTICES 6
-    #define NUM_INDICES 12
+    #define NUM_INDICES 9
 #else
     #define NUM_VERTICES 9
 #endif
@@ -24,9 +24,9 @@ GLuint ShaderProgramID;
 GLfloat theta;
 GLfloat scaleAmount;
 
-GLfloat* M;	
-GLfloat* V;
-GLfloat* P;
+GLfloat* M;	//local->camera
+GLfloat* V; //camera->world
+GLfloat* P; //world->perspective
 
 GLfloat* scaleMatrix;
 
@@ -118,8 +118,10 @@ void ChangeViewport(int w, int h)
 	glViewport(0, 0, w, h);
 }
 
+//gets called each time the window needs to be redrawn.
 void render(void)
 {
+    cout << "render() was called!" << endl;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(ShaderProgramID);
@@ -127,22 +129,22 @@ void render(void)
     theta += 0.01f;
     scaleAmount = sin(theta);
 
-    MathHelper::makeScale(scaleMatrix, 0.1f, 0.1f, 0.1f);
+    MathHelper::makeScale(scaleMatrix, 1.5f, 1.5f, 1.5f);
     MathHelper::makeRotateY(rotYMatrix, theta);
     MathHelper::makeTranslate(transMatrix, 0.0f, -0.25f, -2.0f);
-    // MathHelper::makeTranslate(V, 0.0f, 1.0f, 0.0f);
+    MathHelper::makeTranslate(V, -0.5f, 0.5f, 1.3f);
 
-    MathHelper::matrixMult4x4(M, transMatrix, rotYMatrix);
-   // MathHelper::matrixMult4x4(M, rotYMatrix, transMatrix);
-    //MathHelper::matrixMult4x4(tempMatrix1, rotYMatrix, scaleMatrix);
-    //MathHelper::matrixMult4x4(M, transMatrix, tempMatrix1);
+    //MathHelper::matrixMult4x4(M, transMatrix, rotYMatrix);
+   //MathHelper::matrixMult4x4(M, rotYMatrix, transMatrix);
+    MathHelper::matrixMult4x4(tempMatrix1, rotYMatrix, scaleMatrix);
+    MathHelper::matrixMult4x4(M, transMatrix, tempMatrix1);
 
     //Pass data to shader variables
     glUniformMatrix4fv(modelMatrixID, 1, GL_TRUE, M);
     glUniformMatrix4fv(viewMatrixID, 1, GL_TRUE, V);
     glUniformMatrix4fv(perspectiveMatrixID, 1, GL_TRUE, P);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 #if USING_INDEX_BUFFER   
     glDrawElements(GL_TRIANGLES, NUM_INDICES, GL_UNSIGNED_INT, NULL); //do not use glDrawArrays() which is non-index buffer way
@@ -151,7 +153,9 @@ void render(void)
 #endif
     
 	glutSwapBuffers();
-    glutPostRedisplay();
+
+    //This calls "render" again, allowing for animation!
+    glutPostRedisplay(); 
 }
 
 int main(int argc, char** argv)
@@ -194,7 +198,7 @@ int main(int argc, char** argv)
 
     };
 
-    GLuint indices[] = {0, 1, 2, 2, 4, 5, 1, 3, 4, 1,2,4};
+    GLuint indices[] = {0, 1, 2, 2, 4, 5, 1, 3, 4};
 #else
     GLfloat vertices[] = {-0.5f, -0.5f, 0.0f, //3
                         0.0f, -0.5f, 0.0f, //4
@@ -218,6 +222,10 @@ int main(int argc, char** argv)
 
     };
 #endif
+	// Create the "remember all"
+    GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
 
     GLuint vbo;
     glGenBuffers(1, &vbo);
@@ -243,7 +251,6 @@ int main(int argc, char** argv)
     cout << "colorID = " << colorID <<endl;
 
     //location -- find matrix from shader
-    
     perspectiveMatrixID = glGetUniformLocation(ShaderProgramID, "mP");
     viewMatrixID = glGetUniformLocation(ShaderProgramID, "mV");
     modelMatrixID = glGetUniformLocation(ShaderProgramID, "mM");

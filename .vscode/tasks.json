@@ -6,7 +6,9 @@
             "command": "C:\\msys64\\mingw64\\bin\\g++.exe",
             "args": [
                 "-g",
-                "${file}",
+                "${fileDirname}/Matrix.cpp",
+                "${fileDirname}/MathHelper.h",
+                "${fileDirname}/MathHelper.cpp",
                 "-lfreeglut",
                 "-lglew32",
                 "-lopengl32",

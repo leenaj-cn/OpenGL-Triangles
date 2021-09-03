@@ -1,30 +1,30 @@
-# OpenGL - Triangles 
+# OpenGL - Draw triangles - Structure 
 
-1. IntroShaders
+## IntroShaders
 
         IntroShaders.cpp
 
         bin/IntroShaders.exe
 
-2. IndexBuffers
+## IndexBuffers
 
         IndexBuffers
 
         bin/IndexBuffers.exe
 
-3. VertexBuffers
+## VertexBuffers
 
         VertexBuffers.cpp
         bin/VertexBuffers.exe
 
-4. Matrix
+## Matrix
 
         MathHelper.h
         MathHelper.cpp
         Matrix.cpp
         bin/Matrix.exe
 
-5. DiffuseLighting
+## DiffuseLighting
 
         DiffuseLighting.cpp
         MathHelper.cpp

@@ -6,8 +6,8 @@
             "command": "C:\\msys64\\mingw64\\bin\\g++.exe",
             "args": [
                 "-g",
-                "${fileDirname}/phlegm_small.cpp",
-                "${fileDirname}/phlegm_small.h",
+                "${fileDirname}/DiffuseLighting.cpp",
+                "${fileDirname}/models/phlegm_small.h",
                 "${fileDirname}/MathHelper.h",
                 "${fileDirname}/MathHelper.cpp",
                 "-lfreeglut",

@@ -1,4 +1,12 @@
 # OpenGL - Draw triangles - Structure 
+ ### Env:      
+        freeglut + glew
+
+        opengl 4.6
+
+        NVIDIA RTX A300 
+
+        Win10
 
 ## IntroShaders
 
